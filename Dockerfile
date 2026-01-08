@@ -16,7 +16,10 @@ RUN pnpm install --frozen-lockfile
 # Copiar código fuente
 COPY src/ ./src/
 COPY tsconfig.json ./
-COPY komodo.json ./komodo.json
+# Copiar script de entrada
+COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
+
 
 # Compilar TypeScript
 RUN pnpm run build
@@ -44,6 +47,9 @@ ENV NODE_ENV=production \
     KOMODO_KEY="" \
     KOMODO_SECRET="" \
     KOMODO_API_KEY=""
+
+# Set entrypoint to generate config and start services
+ENTRYPOINT ["./entrypoint.sh"]
 
 # Default command - run both services
 CMD ["sh", "-c", "npx -y supergateway --stdio 'node /app/dist/index.js' --port 3333 --baseUrl http://0.0.0.0:3333 --ssePath /sse --messagePath /message --cors & uvx mcpo --config ./komodo.json --port 8090 --api-key '' --hot-reload"]
