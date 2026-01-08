@@ -21,8 +21,6 @@ services:
       - KOMODO_URL=${KOMODO_URL}
       - KOMODO_KEY=${KOMODO_KEY}
       - KOMODO_SECRET=${KOMODO_SECRET}
-    env_file:
-      - .env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3333/sse"]
@@ -30,12 +28,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - komodo-network
-
-networks:
-  komodo-network:
-    driver: bridge
 ```
 
 2. **Crea un archivo `.env`**:
