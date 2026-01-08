@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - "v*"
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[:upper:]' '[:lower:]')
+
+          BRANCH=${{ github.ref_name }}
+          SHA=$(echo ${{ github.sha }} | cut -c1-8)
+
+          docker build . \
+            -t $IMAGE_ID:latest \
+            -t $IMAGE_ID:$BRANCH \
+            -t $IMAGE_ID:$BRANCH-$SHA
+
+          docker push $IMAGE_ID:latest
+          docker push $IMAGE_ID:$BRANCH
+          docker push $IMAGE_ID:$BRANCH-$SHA
